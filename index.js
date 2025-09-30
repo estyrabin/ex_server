@@ -1,16 +1,18 @@
-const express = require('express')
-const userRouter = require('./routes/routes.js');
+const express = require('express');
+const router = require('./routes/routes.js');
+const cors = require('cors');
 
-const app = express()
-const port = 3000
+const app = express();
+const port = 3001;
 
+app.use(cors());
 app.use(express.json());
-app.use('/api', userRouter);
+app.use('/api', router);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+  res.send('Hello World!');
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
