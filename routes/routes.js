@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const { generateToken } = require('../utils/token');
 const { isLoggedin } = require('../middlewares/middleware');
 const { addToken, deleteToken } = require('../services/tokenService');
@@ -6,38 +7,39 @@ const { addToken, deleteToken } = require('../services/tokenService');
 const router = express.Router();
 
 const DB = [{ id: 1, name: 'book 1' }];
-const USERS = [{ username: 'admin', password: '1234' }];
+const USERS = [{ username: 'admin', password: bcrypt.hashSync('1234', 10) }];
+const SALT_ROUNDS = 10;
 
 router.get('/book', isLoggedin, (req, res) => {
   res.json(DB);
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ message: 'username and password required' });
 
-  const user = USERS.find(u => u.username === username && u.password === password);
+  const user = USERS.find(u => u.username === username);
   if (!user) return res.status(401).json({ message: 'invalid credentials' });
 
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) return res.status(401).json({ message: 'invalid credentials' });
+
   const token = generateToken();
-  addToken(token);               
+  addToken(token);
   res.json({ token });
 });
 
-
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ message: 'username and password required' });
-  
-  const find_user = USERS.find(u => u.username === username);
-  if (find_user) return res.status(409).json({ message: 'user already exsit' });
 
-  const user = { username: username, password: password };
+  const exists = USERS.find(u => u.username === username);
+  if (exists) return res.status(409).json({ message: 'user already exists' });
 
+  const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+  USERS.push({ username, password: hashed });
 
-  USERS.push(user)
-
-  res.json({ USERS });
+  res.json({message: 'user registered successfully' });
 });
 
 router.post('/logout', (req, res) => {
@@ -47,7 +49,7 @@ router.post('/logout', (req, res) => {
 
   if (!token) return res.status(400).json({ message: 'Token required' });
 
-  const removed = deleteToken(token); 
+  const removed = deleteToken(token);
   if (removed) return res.status(200).json({ message: 'Logged out successfully', success: true });
   return res.status(404).json({ message: 'Token not found' });
 });
