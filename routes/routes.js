@@ -14,10 +14,10 @@ router.get('/book', isLoggedin, (req, res) => {
 
 router.post('/login', (req, res) => {
   const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
 
   const user = USERS.find(u => u.username === username && u.password === password);
-  if (!user) return res.status(401).json({ error: 'invalid credentials' });
+  if (!user) return res.status(401).json({ message: 'invalid credentials' });
 
   const token = generateToken();
   addToken(token);               
@@ -27,7 +27,7 @@ router.post('/login', (req, res) => {
 
 router.post('/register', (req, res) => {
   const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
   
   const find_user = USERS.find(u => u.username === username);
   if (find_user) return res.status(409).json({ message: 'user already exsit' });
