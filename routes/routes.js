@@ -7,7 +7,7 @@ const { addToken, deleteToken } = require('../services/tokenService');
 const router = express.Router();
 
 const DB = [{ id: 1, name: 'book 1' }];
-const USERS = [{ username: 'admin', password: bcrypt.hashSync('1234', 10) }];
+const USERS = [{ username: 'admin', password: "$2b$10$ufHEccal/BedICikWPmQ/.sZv82E9/2tY891VSADNKIMA2FNHU4JS"}];
 const SALT_ROUNDS = 10;
 
 router.get('/book', isLoggedin, (req, res) => {
