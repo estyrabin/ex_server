@@ -29,7 +29,7 @@ router.post('/register', (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: 'username and password required' });
   
-  const find_user = USERS.find(u => u.username === username && u.password === password);
+  const find_user = USERS.find(u => u.username === username);
   if (find_user) return res.status(409).json({ message: 'user already exsit' });
 
   const user = { username: username, password: password };
